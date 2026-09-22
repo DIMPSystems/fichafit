@@ -1,0 +1,53 @@
+{
+  "gimnasio": "Nombre del Gimnasio",
+  "maquinas": [
+    {
+      "nombre": "Press de banca",
+      "musculos": {
+        "pecho": "principal",
+        "triceps": "secundario",
+        "hombros": "terciario"
+      },
+      "pasos": [
+        "Acostate en el banco con los pies apoyados firmes en el piso.",
+        "Agarrá la barra un poco más ancho que el ancho de hombros.",
+        "Bajá la barra controlada hasta rozar el pecho.",
+        "Empujá hacia arriba sin trabar los codos de golpe.",
+        "Repetí el movimiento de forma controlada, sin rebotar en el pecho."
+      ],
+      "tip": "Pedí que alguien te haga de ayudante (spotter) si vas a usar mucho peso, y no despeguen los omóplatos del banco durante el movimiento."
+    },
+    {
+      "nombre": "Prensa de piernas",
+      "musculos": {
+        "cuadriceps": "principal",
+        "gluteos": "secundario",
+        "isquiotibiales": "terciario"
+      },
+      "pasos": [
+        "Sentate y apoyá toda la espalda contra el respaldo.",
+        "Colocá los pies en la plataforma, separados al ancho de cadera.",
+        "Destrabá los seguros y bajá el peso controlando con las piernas.",
+        "Bajá hasta que las rodillas formen unos 90°, sin despegar la zona lumbar del respaldo.",
+        "Empujá de vuelta sin trabar las rodillas del todo arriba."
+      ],
+      "tip": "No dejes que las rodillas se metan hacia adentro al empujar, y evitá bajar tanto que la cintura se despegue del respaldo."
+    },
+    {
+      "nombre": "Polea alta (jalón al pecho)",
+      "musculos": {
+        "dorsales": "principal",
+        "biceps": "secundario",
+        "trapecios": "terciario"
+      },
+      "pasos": [
+        "Sentate y ajustá las rodilleras para que las piernas no se levanten.",
+        "Agarrá la barra más ancho que los hombros, con las palmas hacia adelante.",
+        "Tirá la barra hacia abajo llevando el pecho un poco hacia adelante.",
+        "Llevá la barra hasta la altura de la parte superior del pecho.",
+        "Volvé arriba de forma controlada, sin soltar de golpe."
+      ],
+      "tip": "Evitá tirar la barra usando el peso del cuerpo hacia atrás: el movimiento lo hace la espalda, no el balanceo."
+    }
+  ]
+}
