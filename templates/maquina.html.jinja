@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ maquina.nombre }} · {{ gimnasio_nombre }}</title>
+<link rel="stylesheet" href="{{ ruta_assets }}style.css">
+<style>
+/* Músculos que trabaja esta máquina puntual */
+{{ estilo_musculos }}
+</style>
+</head>
+<body>
+<div class="contenedor">
+
+  <header class="encabezado">
+    <p class="marca">{{ gimnasio_nombre|upper }}</p>
+    <h1>{{ maquina.nombre }}</h1>
+  </header>
+
+  <div class="video-wrap">
+    {% if maquina.video_embed %}
+    <iframe src="{{ maquina.video_embed }}" title="Cómo usar {{ maquina.nombre }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    {% elif maquina.video_archivo %}
+    <video controls playsinline preload="metadata" poster="{{ maquina.video_poster or '' }}">
+      <source src="{{ maquina.video_archivo }}" type="video/mp4">
+      Tu navegador no puede reproducir este video.
+    </video>
+    {% else %}
+    <div class="video-placeholder">Video próximamente</div>
+    {% endif %}
+  </div>
+
+  <section>
+    <h2 class="subtitulo">Músculos que trabaja</h2>
+    <div class="diagrama-box">
+      {{ diagrama_svg }}
+    </div>
+  </section>
+
+  <div class="referencias">
+    <span class="item"><span class="punto principal"></span> Principal</span>
+    <span class="item"><span class="punto secundario"></span> Secundario</span>
+    <span class="item"><span class="punto terciario"></span> Estabiliza</span>
+  </div>
+
+  <section>
+    <h2 class="subtitulo">Cómo usarla</h2>
+    <ol class="pasos">
+      {% for paso in maquina.pasos %}
+      <li>{{ paso }}</li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  {% if maquina.tip %}
+  <section>
+    <div class="tip-seguridad">
+      <strong>Antes de usarla</strong>
+      {{ maquina.tip }}
+    </div>
+  </section>
+  {% endif %}
+
+  <footer class="pie">
+    <p class="nombre-gym">{{ gimnasio_nombre }}</p>
+    <p>Sistema de fichas por máquina · DIMP Systems</p>
+  </footer>
+
+</div>
+</body>
+</html>
