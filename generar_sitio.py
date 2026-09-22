@@ -185,9 +185,10 @@ def main():
         generar_qr(gimnasio_nombre, maquina, slug)
         print(f"  ✓ qr/{slug}.png")
 
-    # Página de inicio simple, solo para probar el sitio de punta a punta
-    # (no es lo que ve el socio, que llega directo a la ficha de su máquina
-    # escaneando el QR).
+    # Página de inicio: no es lo que ve el socio en el uso normal (él llega
+    # directo a la ficha de su máquina escaneando el QR), pero queda
+    # prolija y con la marca del sitio por si alguien entra al dominio
+    # directamente (por ejemplo, mostrándola en una reunión).
     filas = "\n".join(
         f'<li><a href="maquinas/{m["slug"]}/">{m["nombre"]}</a></li>' for m in indice
     )
@@ -195,11 +196,32 @@ def main():
         f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{gimnasio_nombre} · Fichas de máquinas</title></head>
-<body style="font-family:sans-serif;max-width:480px;margin:40px auto;padding:0 20px;">
-<h1>{gimnasio_nombre}</h1>
-<p>Fichas de uso por máquina (de prueba — el socio entra directo por QR):</p>
-<ul>{filas}</ul>
+<title>{gimnasio_nombre} · Fichas de máquinas</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .indice-maquinas {{ list-style: none; margin: 0; padding: 0 20px; }}
+  .indice-maquinas li {{ border-bottom: 1px solid var(--borde); }}
+  .indice-maquinas a {{
+    display: block; padding: 16px 4px; color: var(--negro);
+    text-decoration: none; font-size: 15px; font-weight: 600;
+  }}
+  .indice-maquinas a:after {{ content: "›"; float: right; color: var(--principal); font-weight: 700; }}
+  .indice-intro {{ padding: 0 20px; color: var(--gris); font-size: 14px; line-height: 1.5; }}
+</style>
+</head>
+<body>
+<div class="contenedor">
+  <header class="encabezado">
+    <p class="marca">{gimnasio_nombre.upper()}</p>
+    <h1>Fichas por máquina</h1>
+  </header>
+  <p class="indice-intro">Cada máquina del gimnasio tiene su propio cartel con código QR: escaneándolo, el socio entra directo a su ficha. Este índice es solo de referencia.</p>
+  <ul class="indice-maquinas">{filas}</ul>
+  <footer class="pie">
+    <p class="nombre-gym">{gimnasio_nombre}</p>
+    <p>Sistema de fichas por máquina · DIMP Systems</p>
+  </footer>
+</div>
 </body></html>""",
         encoding="utf-8",
     )
