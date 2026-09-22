@@ -27,7 +27,13 @@
       Tu navegador no puede reproducir este video.
     </video>
     {% else %}
-    <div class="video-placeholder">Video próximamente</div>
+    <div class="video-placeholder">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="11" stroke="#d7d7da" stroke-width="1.4"/>
+        <path d="M10 8.5L16 12L10 15.5V8.5Z" fill="#d7d7da"/>
+      </svg>
+      <span>Video de uso — próximamente</span>
+    </div>
     {% endif %}
   </div>
 
