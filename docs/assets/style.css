@@ -1,0 +1,192 @@
+:root {
+  --negro: #17171a;
+  --gris: #5a5a5a;
+  --gris-claro: #eef0f3;
+  --rojo: #b40500;
+  --principal: #af0930;
+  --secundario: #d85c72;
+  --terciario: #f3b6c1;
+  --fondo: #ffffff;
+  --borde: #e4e6ea;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--negro);
+  background: var(--fondo);
+}
+
+.contenedor {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 0 40px 0;
+}
+
+header.encabezado {
+  padding: 14px 20px 10px 20px;
+  text-align: center;
+}
+
+header.encabezado .marca {
+  color: var(--rojo);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin: 0 0 4px 0;
+}
+
+header.encabezado h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0f0f10;
+  overflow: hidden;
+}
+
+.video-wrap video, .video-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.video-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cfcfcf;
+  font-size: 14px;
+  text-align: center;
+  padding: 0 24px;
+}
+
+section {
+  padding: 18px 20px 0 20px;
+}
+
+h2.subtitulo {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gris);
+  border-bottom: 2px solid var(--rojo);
+  display: inline-block;
+  padding-bottom: 4px;
+  margin: 0 0 12px 0;
+}
+
+.diagrama-box {
+  display: flex;
+  justify-content: center;
+  padding: 6px 10px;
+}
+
+.diagrama-box svg {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+}
+
+.etiqueta-vista {
+  font-size: 34px;
+  fill: var(--gris);
+  letter-spacing: 4px;
+}
+
+/* El cuerpo es un solo maniquí sólido armado con piezas que encastran
+   (cada músculo es su silueta real, no una forma flotando encima —
+   piezas adaptadas de una librería anatómica open source, ver el
+   comentario dentro del SVG). En reposo todas las piezas comparten el
+   mismo color oscuro, así se ve como un cuerpo único; el trazo clarito
+   entre piezas es lo que separa visualmente cada músculo, como en una
+   lámina de anatomía. */
+.neutral, .musculo {
+  fill: #222326;
+  stroke: rgba(255, 255, 255, .5);
+  stroke-width: 3.2;
+  stroke-linejoin: round;
+  transition: fill .2s ease, stroke .2s ease;
+}
+
+/* Los músculos activos de cada máquina se pintan con reglas
+   [data-musculo="x"] > { ... } inyectadas por página (ver generador). */
+
+.referencias {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 8px 20px 0 20px;
+  font-size: 12px;
+  color: var(--gris);
+}
+
+.referencias .item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.referencias .punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.punto.principal { background: var(--principal); }
+.punto.secundario { background: var(--secundario); }
+.punto.terciario { background: var(--terciario); }
+
+ol.pasos {
+  margin: 0;
+  padding-left: 20px;
+}
+
+ol.pasos li {
+  margin-bottom: 10px;
+  line-height: 1.45;
+  font-size: 15px;
+}
+
+.tip-seguridad {
+  margin-top: 6px;
+  background: #fff6e9;
+  border-left: 4px solid var(--secundario);
+  padding: 12px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.tip-seguridad strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--negro);
+}
+
+footer.pie {
+  margin-top: 28px;
+  padding: 16px 20px 0 20px;
+  border-top: 1px solid var(--borde);
+  text-align: center;
+  color: var(--gris);
+  font-size: 11px;
+}
+
+footer.pie .nombre-gym {
+  color: var(--negro);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
