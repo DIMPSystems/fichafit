@@ -1,11 +1,32 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nombre del Gimnasio · Fichas de máquinas</title></head>
-<body style="font-family:sans-serif;max-width:480px;margin:40px auto;padding:0 20px;">
-<h1>Nombre del Gimnasio</h1>
-<p>Fichas de uso por máquina (de prueba — el socio entra directo por QR):</p>
-<ul><li><a href="maquinas/press-de-banca/">Press de banca</a></li>
+<title>Nombre del Gimnasio · Fichas de máquinas</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .indice-maquinas { list-style: none; margin: 0; padding: 0 20px; }
+  .indice-maquinas li { border-bottom: 1px solid var(--borde); }
+  .indice-maquinas a {
+    display: block; padding: 16px 4px; color: var(--negro);
+    text-decoration: none; font-size: 15px; font-weight: 600;
+  }
+  .indice-maquinas a:after { content: "›"; float: right; color: var(--principal); font-weight: 700; }
+  .indice-intro { padding: 0 20px; color: var(--gris); font-size: 14px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="contenedor">
+  <header class="encabezado">
+    <p class="marca">NOMBRE DEL GIMNASIO</p>
+    <h1>Fichas por máquina</h1>
+  </header>
+  <p class="indice-intro">Cada máquina del gimnasio tiene su propio cartel con código QR: escaneándolo, el socio entra directo a su ficha. Este índice es solo de referencia.</p>
+  <ul class="indice-maquinas"><li><a href="maquinas/press-de-banca/">Press de banca</a></li>
 <li><a href="maquinas/prensa-de-piernas/">Prensa de piernas</a></li>
 <li><a href="maquinas/polea-alta-jalon-al-pecho/">Polea alta (jalón al pecho)</a></li></ul>
+  <footer class="pie">
+    <p class="nombre-gym">Nombre del Gimnasio</p>
+    <p>Sistema de fichas por máquina · DIMP Systems</p>
+  </footer>
+</div>
 </body></html>
