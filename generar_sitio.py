@@ -4,8 +4,10 @@ Generador del sitio de fichas por máquina.
 Lee data/maquinas.json (la lista de máquinas del gimnasio, con qué músculos
 trabaja cada una, el video y los pasos de uso) y arma automáticamente una
 carpeta por máquina dentro de docs/, lista para subir a GitHub y activar
-GitHub Pages. No hace falta tocar HTML a mano: agregar o corregir una
-máquina es solo editar el JSON y volver a correr este script.
+GitHub Pages. También genera, para cada máquina, un cartel PNG listo para
+imprimir con su código QR (apunta a la ficha de esa máquina) dentro de qr/.
+No hace falta tocar HTML a mano: agregar o corregir una máquina es solo
+editar el JSON y volver a correr este script.
 
 Uso:
     python3 generar_sitio.py
@@ -16,13 +18,31 @@ import shutil
 import unicodedata
 from pathlib import Path
 
+import qrcode
 from jinja2 import Environment, FileSystemLoader
+from PIL import Image, ImageDraw, ImageFont
 
 RAIZ = Path(__file__).parent
 DATA_FILE = RAIZ / "data" / "maquinas.json"
 ASSETS_DIR = RAIZ / "assets"
 TEMPLATES_DIR = RAIZ / "templates"
 SALIDA_DIR = RAIZ / "docs"
+QR_DIR = RAIZ / "qr"
+
+# Sitio publicado en GitHub Pages. Cuando el gym real tenga su propio
+# dominio (o el repo pase a ser uno por cliente), solo hay que cambiar
+# esta constante y volver a correr el script: todos los QR se regeneran
+# apuntando a la URL nueva.
+BASE_URL_SITIO = "https://dimpsystems.github.io/fichafit"
+
+# Tipografías para el cartel del QR (DejaVu viene instalada en el sistema).
+FUENTE_DIR = Path("/usr/share/fonts/truetype/dejavu")
+FUENTE_TITULO = FUENTE_DIR / "DejaVuSans-Bold.ttf"
+FUENTE_TEXTO = FUENTE_DIR / "DejaVuSans.ttf"
+
+COLOR_PRINCIPAL = (175, 9, 48)      # var(--principal) del sitio
+COLOR_GRIS = (90, 90, 90)           # var(--gris)
+COLOR_NEGRO = (23, 23, 26)          # var(--negro)
 
 # Color por nivel de participación del músculo en el ejercicio (el trazo
 # clarito entre piezas se mantiene siempre, incluso pintado, para que se
@@ -58,10 +78,79 @@ def armar_estilo_musculos(musculos):
     return "\n".join(lineas)
 
 
+def _texto_centrado(draw, y, texto, fuente, color, ancho_lienzo):
+    """Dibuja una línea de texto centrada horizontalmente y devuelve el alto
+    que ocupó, para poder apilar líneas una debajo de la otra."""
+    caja = draw.textbbox((0, 0), texto, font=fuente)
+    ancho_texto = caja[2] - caja[0]
+    alto_texto = caja[3] - caja[1]
+    x = (ancho_lienzo - ancho_texto) / 2
+    draw.text((x, y), texto, font=fuente, fill=color, anchor=None)
+    return alto_texto
+
+
+def generar_qr(gimnasio_nombre, maquina, slug):
+    """Arma un cartel PNG listo para imprimir: nombre del gimnasio, nombre
+    de la máquina y el código QR que lleva directo a la ficha de esa
+    máquina en el sitio publicado."""
+    url = f"{BASE_URL_SITIO}/maquinas/{slug}/"
+
+    qr = qrcode.QRCode(border=2, box_size=10, error_correction=qrcode.constants.ERROR_CORRECT_M)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img_qr = qr.make_image(fill_color=COLOR_NEGRO, back_color="white").convert("RGB")
+
+    ancho, alto = 1200, 1320
+    cartel = Image.new("RGB", (ancho, alto), "white")
+    draw = ImageDraw.Draw(cartel)
+
+    fuente_gym = ImageFont.truetype(str(FUENTE_TEXTO), 34)
+    fuente_maquina = ImageFont.truetype(str(FUENTE_TITULO), 56)
+    fuente_caption = ImageFont.truetype(str(FUENTE_TEXTO), 30)
+
+    y = 70
+    y += _texto_centrado(draw, y, gimnasio_nombre.upper(), fuente_gym, COLOR_PRINCIPAL, ancho) + 24
+
+    # El nombre de la máquina puede no entrar en una sola línea: lo partimos
+    # en hasta 2 líneas por palabras.
+    palabras = maquina["nombre"].split()
+    lineas_nombre, actual = [], ""
+    for palabra in palabras:
+        prueba = f"{actual} {palabra}".strip()
+        if draw.textbbox((0, 0), prueba, font=fuente_maquina)[2] > ancho - 100 and actual:
+            lineas_nombre.append(actual)
+            actual = palabra
+        else:
+            actual = prueba
+    lineas_nombre.append(actual)
+    for linea in lineas_nombre:
+        y += _texto_centrado(draw, y, linea, fuente_maquina, COLOR_NEGRO, ancho) + 12
+
+    y += 20
+    draw.line([(ancho / 2 - 60, y), (ancho / 2 + 60, y)], fill=COLOR_PRINCIPAL, width=4)
+    y += 40
+
+    qr_lado = 820
+    img_qr = img_qr.resize((qr_lado, qr_lado))
+    cartel.paste(img_qr, (int((ancho - qr_lado) / 2), int(y)))
+    y += qr_lado + 36
+
+    _texto_centrado(draw, y, "Escaneá para ver cómo usarla", fuente_caption, COLOR_GRIS, ancho)
+
+    QR_DIR.mkdir(exist_ok=True)
+    ruta = QR_DIR / f"{slug}.png"
+    cartel.save(ruta)
+    return ruta
+
+
 def main():
     if SALIDA_DIR.exists():
         shutil.rmtree(SALIDA_DIR)
     SALIDA_DIR.mkdir(parents=True)
+
+    if QR_DIR.exists():
+        shutil.rmtree(QR_DIR)
+    QR_DIR.mkdir(parents=True)
 
     # Copiamos los assets compartidos (CSS) una sola vez.
     (SALIDA_DIR / "assets").mkdir()
@@ -92,6 +181,9 @@ def main():
         (carpeta / "index.html").write_text(html, encoding="utf-8")
         indice.append({"nombre": maquina["nombre"], "slug": slug})
         print(f"  ✓ maquinas/{slug}/index.html")
+
+        generar_qr(gimnasio_nombre, maquina, slug)
+        print(f"  ✓ qr/{slug}.png")
 
     # Página de inicio simple, solo para probar el sitio de punta a punta
     # (no es lo que ve el socio, que llega directo a la ficha de su máquina
