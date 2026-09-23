@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Panel de avisos · Delta Gym</title>
+<link rel="stylesheet" href="../../assets/style.css">
+</head>
+<body>
+<div class="admin-contenedor">
+
+  <header class="encabezado">
+    <p class="marca">DELTA GYM</p>
+    <h1>Panel de avisos</h1>
+  </header>
+
+  <div class="pantalla-pin" id="pantalla-pin">
+    <h1>Ingresá el código</h1>
+    <p>Te lo pasó DIMP Systems junto con el gimnasio. Solo lo necesitás la primera vez en este celular/compu.</p>
+    <input class="pin-input" id="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" autocomplete="off">
+    <button class="btn-primario" id="btn-entrar" type="button">Entrar</button>
+  </div>
+
+  <div id="panel" style="display:none;">
+
+    <div class="estado-actual-box" id="estado-actual">Cargando estado actual…</div>
+
+    <div class="botones-estado">
+      <button class="btn-grande btn-abrir" id="btn-abrimos" type="button">✅ Marcamos<br>que ABRIMOS</button>
+      <button class="btn-grande btn-cerrar" id="btn-cerramos" type="button">🔒 Marcamos<br>que CERRAMOS</button>
+    </div>
+
+    <div class="campo-admin">
+      <label for="nombre">Tu nombre (para el registro)</label>
+      <input id="nombre" type="text" placeholder="Ej: Gabriel, Recepción...">
+    </div>
+
+    <div class="campo-admin">
+      <label for="texto-aviso">Aviso especial (opcional)</label>
+      <textarea id="texto-aviso" rows="3" placeholder='Ej: "Hoy abrimos 9:30 en vez de 9:00 por arreglo en la puerta"'></textarea>
+    </div>
+
+    <div class="fila-botones-aviso">
+      <button class="btn-secundario" id="btn-guardar-aviso" type="button">Guardar aviso</button>
+      <button class="btn-borrar" id="btn-quitar-aviso" type="button">Quitar aviso</button>
+    </div>
+
+    <div class="mensaje-admin" id="mensaje"></div>
+
+    <button class="cambiar-codigo" id="btn-cambiar-codigo" type="button">Usar otro código</button>
+
+  </div>
+
+  <footer class="pie">
+    <p class="nombre-gym">Delta Gym</p>
+    <p>Sistema de avisos · DIMP Systems</p>
+  </footer>
+
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwI_3vZOKQ_sZCQEDx5Qp9rv2zQlYsiXVwqXk-TUfghmQxJvOe0FbppVlVs52zoQA7U0w/exec";
+let PIN = "";
+let estadoActual = "abierto";
+
+const pantallaPin = document.getElementById("pantalla-pin");
+const panel = document.getElementById("panel");
+const pinInput = document.getElementById("pin-input");
+const estadoBox = document.getElementById("estado-actual");
+const nombreInput = document.getElementById("nombre");
+const textoAvisoInput = document.getElementById("texto-aviso");
+const mensajeEl = document.getElementById("mensaje");
+
+function mostrarMensaje(texto, tipo) {
+  mensajeEl.textContent = texto;
+  mensajeEl.className = "mensaje-admin visible" + (tipo ? " " + tipo : "");
+}
+
+function ocultarMensaje() {
+  mensajeEl.className = "mensaje-admin";
+}
+
+async function refrescar() {
+  try {
+    const res = await fetch(API_URL, { cache: "no-store" });
+    const data = await res.json();
+    estadoActual = (data.estado || "abierto").toLowerCase();
+    textoAvisoInput.value = data.aviso_texto || "";
+    const badge = estadoActual === "cerrado" ? "🔒 CERRADO" : "🟢 ABIERTO";
+    const detalle = data.actualizado_en
+      ? `actualizado ${data.actualizado_en}${data.actualizado_por ? " por " + data.actualizado_por : ""}`
+      : "sin registro de última actualización";
+    estadoBox.innerHTML = `<strong>${badge}</strong>${detalle}`;
+  } catch (err) {
+    estadoBox.innerHTML = `<strong>⚠️ No se pudo leer el estado actual</strong>Revisá tu conexión.`;
+  }
+}
+
+async function enviar(estado, avisoTexto) {
+  const nombre = nombreInput.value.trim() || "Recepción";
+  mostrarMensaje("Guardando…", "");
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ pin: PIN, estado, aviso_texto: avisoTexto, actualizado_por: nombre })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      mostrarMensaje("✅ Listo, quedó guardado (" + data.actualizado_en + ")", "ok");
+      refrescar();
+    } else {
+      mostrarMensaje("❌ " + (data.error || "No se pudo guardar"), "error");
+      if ((data.error || "").toLowerCase().includes("pin")) {
+        setTimeout(volverAPin, 1200);
+      }
+    }
+  } catch (err) {
+    mostrarMensaje("❌ No se pudo conectar. Revisá tu internet e intentá de nuevo.", "error");
+  }
+}
+
+function volverAPin() {
+  PIN = "";
+  pinInput.value = "";
+  panel.style.display = "none";
+  pantallaPin.style.display = "flex";
+  ocultarMensaje();
+}
+
+document.getElementById("btn-entrar").addEventListener("click", () => {
+  const val = pinInput.value.trim();
+  if (!val) return;
+  PIN = val;
+  pantallaPin.style.display = "none";
+  panel.style.display = "block";
+  refrescar();
+});
+
+pinInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("btn-entrar").click();
+});
+
+document.getElementById("btn-abrimos").addEventListener("click", () => enviar("abierto", ""));
+document.getElementById("btn-cerramos").addEventListener("click", () => enviar("cerrado", ""));
+document.getElementById("btn-guardar-aviso").addEventListener("click", () => enviar(estadoActual, textoAvisoInput.value.trim()));
+document.getElementById("btn-quitar-aviso").addEventListener("click", () => { textoAvisoInput.value = ""; enviar(estadoActual, ""); });
+document.getElementById("btn-cambiar-codigo").addEventListener("click", volverAPin);
+</script>
+
+</body>
+</html>
