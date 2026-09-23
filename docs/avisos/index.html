@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Avisos · Delta Gym</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="contenedor">
+
+  <header class="encabezado">
+    <p class="marca">DELTA GYM</p>
+    <h1>Avisos importantes</h1>
+  </header>
+
+  <div class="aviso-ok cargando" id="estado-box">
+    <span class="aviso-icono">⏳</span>
+    <div>
+      <strong>Cargando...</strong>
+      <p>Buscando la última novedad.</p>
+    </div>
+  </div>
+
+  <section id="horario-sec">
+    <h2 class="subtitulo">Horario habitual</h2>
+    <ul class="lista-horario">
+      
+      <li>Lunes a viernes: 8 a 22hs</li>
+      
+      <li>Sábados: 10 a 18hs</li>
+      
+      <li>Domingos: cerrado</li>
+      
+    </ul>
+  </section>
+
+  <p class="actualizado" id="actualizado"></p>
+
+  <button class="recargar-btn" id="btn-recargar" type="button">↻ Actualizar</button>
+
+  <footer class="pie">
+    <p class="nombre-gym">Delta Gym</p>
+    <p>Sistema de avisos · DIMP Systems</p>
+  </footer>
+
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwI_3vZOKQ_sZCQEDx5Qp9rv2zQlYsiXVwqXk-TUfghmQxJvOe0FbppVlVs52zoQA7U0w/exec";
+const HORARIOS = {"0": "Cerrado", "1": "8 a 22hs", "2": "8 a 22hs", "3": "8 a 22hs", "4": "8 a 22hs", "5": "8 a 22hs", "6": "10 a 18hs"};
+const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+
+function horarioHoy() {
+  const hoy = new Date().getDay();
+  return { dia: DIAS[hoy], texto: HORARIOS[String(hoy)] || "consultar horario" };
+}
+
+// "actualizado_en" viaja como texto "dd/MM/yyyy HH:mm" (hora de Argentina).
+// Devuelve cuántas horas pasaron desde esa fecha, o null si no se pudo leer.
+function horasDesde(fechaTexto) {
+  if (!fechaTexto) return null;
+  const partes = fechaTexto.trim().split(" ");
+  if (partes.length < 1) return null;
+  const [d, m, y] = (partes[0] || "").split("/").map(Number);
+  const [hh, mm] = (partes[1] || "0:0").split(":").map(Number);
+  if (!d || !m || !y) return null;
+  const fecha = new Date(y, m - 1, d, hh || 0, mm || 0);
+  return (Date.now() - fecha.getTime()) / 36e5;
+}
+
+function escapar(texto) {
+  const div = document.createElement("div");
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
+function render(data) {
+  const box = document.getElementById("estado-box");
+  const actualizadoEl = document.getElementById("actualizado");
+  const horarioSec = document.getElementById("horario-sec");
+
+  const estado = (data.estado || "abierto").toLowerCase();
+  const textoAviso = (data.aviso_texto || "").trim();
+
+  let clase = "aviso-ok";
+  let icono = "🟢";
+  let titulo = "Ahora está ABIERTO";
+  let cuerpo = "";
+
+  if (estado === "cerrado") {
+    clase = "aviso-grande";
+    icono = "🔒";
+    titulo = "Ahora está CERRADO";
+  }
+
+  if (textoAviso) {
+    clase = "aviso-grande";
+    icono = "📣";
+    cuerpo = escapar(textoAviso);
+    horarioSec.style.display = "";
+  } else {
+    const h = horarioHoy();
+    cuerpo = `Horario de hoy (${h.dia}): <strong>${escapar(h.texto)}</strong>`;
+    horarioSec.style.display = "none";
+  }
+
+  box.className = clase;
+  box.innerHTML = `
+    <span class="aviso-icono">${icono}</span>
+    <div>
+      <strong>${escapar(titulo)}</strong>
+      <p>${cuerpo}</p>
+    </div>`;
+
+  if (data.actualizado_en) {
+    const horas = horasDesde(data.actualizado_en);
+    let nota = "";
+    let color = "var(--gris)";
+    if (horas !== null) {
+      if (horas < 0.05) { nota = "· recién actualizado"; color = "#1c8a4b"; }
+      else if (horas < 14) { nota = "· info reciente"; color = "#1c8a4b"; }
+      else if (horas < 30) { nota = "· revisá con cuidado, no se actualiza hace un rato"; color = "#b5850a"; }
+      else { nota = "· ¡ojo! puede estar desactualizado"; color = "var(--principal)"; }
+    }
+    actualizadoEl.innerHTML = `Última actualización: <strong>${escapar(data.actualizado_en)}</strong><br><span style="color:${color}">${nota}</span>`;
+  } else {
+    actualizadoEl.textContent = "";
+  }
+}
+
+async function cargar() {
+  const box = document.getElementById("estado-box");
+  box.classList.add("cargando");
+  try {
+    const res = await fetch(API_URL, { cache: "no-store" });
+    const data = await res.json();
+    box.classList.remove("cargando");
+    render(data);
+  } catch (err) {
+    box.classList.remove("cargando");
+    box.className = "aviso-grande";
+    box.innerHTML = `
+      <span class="aviso-icono">⚠️</span>
+      <div>
+        <strong>No se pudo cargar</strong>
+        <p>Probá tocar "Actualizar" en un momento, o mirá el horario habitual abajo.</p>
+      </div>`;
+  }
+}
+
+document.getElementById("btn-recargar").addEventListener("click", cargar);
+cargar();
+</script>
+
+</body>
+</html>
