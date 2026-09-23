@@ -46,33 +46,243 @@ header.encabezado h1 {
   margin: 0;
 }
 
-.aviso-banner {
+/* Enlace discreto a /avisos/ desde el índice */
+.aviso-link {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
   margin: 16px 20px 0 20px;
   padding: 12px 14px;
   background: #fff6e9;
   border: 1px solid #f0d9ac;
-  border-left: 4px solid var(--secundario);
   border-radius: 10px;
   font-size: 13px;
-  line-height: 1.45;
+  font-weight: 600;
+  color: #4a3a1c;
+  text-decoration: none;
+}
+
+.aviso-link .aviso-icono { font-size: 16px; }
+.aviso-link:after { content: "›"; margin-left: auto; color: var(--principal); font-weight: 700; }
+
+/* Página /avisos/: cartel grande, pensado para leerse de un vistazo
+   parado afuera del gimnasio */
+.aviso-grande, .aviso-ok {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 18px 20px 0 20px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.aviso-grande {
+  background: #fff6e9;
+  border: 1px solid #f0d9ac;
+  border-left: 5px solid var(--secundario);
   color: #4a3a1c;
 }
 
-.aviso-banner .aviso-icono {
-  font-size: 16px;
+.aviso-ok {
+  background: #eaf7ef;
+  border: 1px solid #bfe3cd;
+  border-left: 5px solid var(--verde, #1c8a4b);
+  color: #1e4a2f;
+}
+
+.aviso-grande .aviso-icono, .aviso-ok .aviso-icono {
+  font-size: 24px;
   line-height: 1.3;
 }
 
-.aviso-banner strong {
+.aviso-grande strong, .aviso-ok strong {
   display: block;
-  font-size: 10.5px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: .5px;
-  color: var(--principal);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+}
+
+.aviso-grande strong { color: var(--principal); }
+.aviso-ok strong { color: #1c8a4b; }
+
+.aviso-grande p, .aviso-ok p { margin: 0; }
+
+.lista-horario {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+}
+
+.lista-horario li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.lista-horario li:last-child { border-bottom: none; }
+
+.actualizado {
+  padding: 18px 20px 0 20px;
+  color: var(--gris);
+  font-size: 12px;
+}
+
+/* Estado de carga inicial en /avisos/ (antes de que responda el fetch) */
+.cargando .aviso-icono { animation: girar 1s linear infinite; display: inline-block; }
+@keyframes girar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.recargar-btn {
+  display: block;
+  margin: 14px 20px 0 20px;
+  padding: 10px;
+  text-align: center;
+  background: var(--gris-claro);
+  border: none;
+  border-radius: 10px;
+  color: var(--gris);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- Panel de administración de avisos ---------- */
+.admin-contenedor { max-width: 480px; margin: 0 auto; padding: 0 0 60px 0; }
+
+.pantalla-pin {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.pantalla-pin h1 { font-size: 20px; margin: 0 0 6px 0; }
+.pantalla-pin p { color: var(--gris); font-size: 14px; margin: 0 0 22px 0; }
+
+.pin-input {
+  width: 100%;
+  font-size: 26px;
+  letter-spacing: 8px;
+  text-align: center;
+  padding: 16px;
+  border: 2px solid var(--borde);
+  border-radius: 14px;
+  margin-bottom: 14px;
+  box-sizing: border-box;
+}
+.pin-input:focus { outline: none; border-color: var(--principal); }
+
+.btn-primario {
+  width: 100%;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--principal);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.btn-primario:active { background: var(--principal-oscuro); }
+
+.estado-actual-box {
+  margin: 18px 20px 0 20px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--gris-claro);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+.estado-actual-box strong { display: block; font-size: 19px; margin-bottom: 4px; }
+
+.botones-estado {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 18px 20px 0 20px;
+}
+
+.btn-grande {
+  padding: 22px 8px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1.3;
+}
+.btn-grande:active { transform: scale(0.97); }
+.btn-abrir { background: #1c8a4b; }
+.btn-cerrar { background: var(--principal); }
+
+.campo-admin { padding: 20px 20px 0 20px; }
+.campo-admin label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gris);
+  margin-bottom: 6px;
+}
+.campo-admin input, .campo-admin textarea {
+  width: 100%;
+  font-size: 15px;
+  padding: 12px;
+  border: 1.5px solid var(--borde);
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+.campo-admin input:focus, .campo-admin textarea:focus { outline: none; border-color: var(--principal); }
+
+.fila-botones-aviso {
+  display: flex;
+  gap: 10px;
+  padding: 12px 20px 0 20px;
+}
+.btn-secundario, .btn-borrar {
+  flex: 1;
+  padding: 13px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+}
+.btn-secundario { background: var(--principal); color: #fff; }
+.btn-borrar { background: var(--gris-claro); color: var(--gris); }
+
+.mensaje-admin {
+  margin: 16px 20px 0 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  display: none;
+}
+.mensaje-admin.visible { display: block; }
+.mensaje-admin.ok { background: #eaf7ef; color: #1c8a4b; }
+.mensaje-admin.error { background: #fdeaea; color: var(--principal); }
+
+.cambiar-codigo {
+  display: block;
+  text-align: center;
+  margin: 26px 20px 0 20px;
+  color: var(--gris);
+  font-size: 12px;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .video-wrap {
@@ -152,7 +362,7 @@ h2.subtitulo {
    piezas adaptadas de una librería anatómica open source, ver el
    comentario dentro del SVG). En reposo todas las piezas comparten el
    mismo color oscuro, así se ve como un cuerpo único; el trazo clarito
-   entre piezas es lo que separa visualmente cada músculo, como en una
+   entre piezas es lo que separa visualmente cada mãsculo, como en una
    lámina de anatomía. */
 .neutral, .musculo {
   fill: #222326;
